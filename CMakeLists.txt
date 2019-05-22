@@ -308,7 +308,7 @@ endif (WIN32 OR APPLE)
 # Download the models
 option(DOWNLOAD_BODY_25_MODEL "Download body 25-keypoint (body COCO and 6-keypoint foot) model." ON)
 option(DOWNLOAD_BODY_COCO_MODEL "Download body 18-keypoint COCO model." OFF)
-option(DOWNLOAD_BODY_MPI_MODEL "Download body 15-keypoint MPI model." OFF)
+option(DOWNLOAD_BODY_MPI_MODEL "Download body 15-keypoint MPI model." ON)
 option(DOWNLOAD_FACE_MODEL "Download face model." ON)
 option(DOWNLOAD_HAND_MODEL "Download hand model." ON)
 
@@ -318,7 +318,7 @@ option(DOWNLOAD_HAND_MODEL "Download hand model." ON)
 # More options
 option(BUILD_EXAMPLES "Build OpenPose examples." ON)
 option(BUILD_DOCS "Build OpenPose documentation." OFF)
-option(BUILD_PYTHON "Build OpenPose python." OFF)
+option(BUILD_PYTHON "Build OpenPose python." ON)
 if (WIN32)
   option(BUILD_BIN_FOLDER "Copy all required 3rd-party DLL files into {build_directory}/bin. Disable to save some memory." ON)
 endif (WIN32)
