@@ -1,10 +1,9 @@
-#ifndef OPENPOSE__FILESTREAM__W_IMAGE_SAVER_HPP
-#define OPENPOSE__FILESTREAM__W_IMAGE_SAVER_HPP
+#ifndef OPENPOSE_FILESTREAM_W_IMAGE_SAVER_HPP
+#define OPENPOSE_FILESTREAM_W_IMAGE_SAVER_HPP
 
-#include <memory> // std::shared_ptr
-#include <string>
-#include "../thread/workerConsumer.hpp"
-#include "imageSaver.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/filestream/imageSaver.hpp>
+#include <openpose/thread/workerConsumer.hpp>
 
 namespace op
 {
@@ -13,6 +12,8 @@ namespace op
     {
     public:
         explicit WImageSaver(const std::shared_ptr<ImageSaver>& imageSaver);
+
+        virtual ~WImageSaver();
 
         void initializationOnThread();
 
@@ -30,17 +31,17 @@ namespace op
 
 
 // Implementation
-#include <vector>
-#include <opencv2/core/core.hpp>
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
-#include "../utilities/pointerContainer.hpp"
-#include "../utilities/profiler.hpp"
+#include <openpose/utilities/pointerContainer.hpp>
 namespace op
 {
     template<typename TDatums>
     WImageSaver<TDatums>::WImageSaver(const std::shared_ptr<ImageSaver>& imageSaver) :
         spImageSaver{imageSaver}
+    {
+    }
+
+    template<typename TDatums>
+    WImageSaver<TDatums>::~WImageSaver()
     {
     }
 
@@ -64,13 +65,14 @@ namespace op
                 auto& tDatumsNoPtr = *tDatums;
                 // Record image(s) on disk
                 std::vector<cv::Mat> cvOutputDatas(tDatumsNoPtr.size());
-                for (auto i = 0; i < tDatumsNoPtr.size(); i++)
-                    cvOutputDatas[i] = tDatumsNoPtr[i].cvOutputData;
-                const auto fileName = (!tDatumsNoPtr[0].name.empty() ? tDatumsNoPtr[0].name : std::to_string(tDatumsNoPtr[0].id));
+                for (auto i = 0u; i < tDatumsNoPtr.size(); i++)
+                    cvOutputDatas[i] = tDatumsNoPtr[i]->cvOutputData;
+                const auto fileName = (!tDatumsNoPtr[0]->name.empty()
+                    ? tDatumsNoPtr[0]->name : std::to_string(tDatumsNoPtr[0]->id));
                 spImageSaver->saveImages(cvOutputDatas, fileName);
                 // Profiling speed
                 Profiler::timerEnd(profilerKey);
-                Profiler::printAveragedTimeMsOnIterationX(profilerKey, __LINE__, __FUNCTION__, __FILE__, Profiler::DEFAULT_X);
+                Profiler::printAveragedTimeMsOnIterationX(profilerKey, __LINE__, __FUNCTION__, __FILE__);
                 // Debugging log
                 dLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             }
@@ -85,4 +87,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(WImageSaver);
 }
 
-#endif // OPENPOSE__FILESTREAM__W_IMAGE_SAVER_HPP
+#endif // OPENPOSE_FILESTREAM_W_IMAGE_SAVER_HPP

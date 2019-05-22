@@ -1,10 +1,9 @@
-#ifndef OPENPOSE__FILESTREAM__W_HEAT_MAP_SAVER_HPP
-#define OPENPOSE__FILESTREAM__W_HEAT_MAP_SAVER_HPP
+#ifndef OPENPOSE_FILESTREAM_W_HEAT_MAP_SAVER_HPP
+#define OPENPOSE_FILESTREAM_W_HEAT_MAP_SAVER_HPP
 
-#include <memory> // std::shared_ptr
-#include <string>
-#include "../thread/workerConsumer.hpp"
-#include "heatMapSaver.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/filestream/heatMapSaver.hpp>
+#include <openpose/thread/workerConsumer.hpp>
 
 namespace op
 {
@@ -13,6 +12,8 @@ namespace op
     {
     public:
         explicit WHeatMapSaver(const std::shared_ptr<HeatMapSaver>& heatMapSaver);
+
+        virtual ~WHeatMapSaver();
 
         void initializationOnThread();
 
@@ -30,17 +31,17 @@ namespace op
 
 
 // Implementation
-#include <vector>
-#include <opencv2/core/core.hpp>
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
-#include "../utilities/pointerContainer.hpp"
-#include "../utilities/profiler.hpp"
+#include <openpose/utilities/pointerContainer.hpp>
 namespace op
 {
     template<typename TDatums>
     WHeatMapSaver<TDatums>::WHeatMapSaver(const std::shared_ptr<HeatMapSaver>& heatMapSaver) :
         spHeatMapSaver{heatMapSaver}
+    {
+    }
+
+    template<typename TDatums>
+    WHeatMapSaver<TDatums>::~WHeatMapSaver()
     {
     }
 
@@ -62,15 +63,17 @@ namespace op
                 const auto profilerKey = Profiler::timerInit(__LINE__, __FUNCTION__, __FILE__);
                 // T* to T
                 auto& tDatumsNoPtr = *tDatums;
-                // Record image(s) on disk
+                // Record pose heatmap image(s) on disk
                 std::vector<Array<float>> poseHeatMaps(tDatumsNoPtr.size());
-                for (auto i = 0; i < tDatumsNoPtr.size(); i++)
-                    poseHeatMaps[i] = tDatumsNoPtr[i].poseHeatMaps;
-                const auto fileName = (!tDatumsNoPtr[0].name.empty() ? tDatumsNoPtr[0].name : std::to_string(tDatumsNoPtr[0].id));
+                for (auto i = 0u; i < tDatumsNoPtr.size(); i++)
+                    poseHeatMaps[i] = tDatumsNoPtr[i]->poseHeatMaps;
+                const auto fileName = (!tDatumsNoPtr[0]->name.empty()
+                    ? tDatumsNoPtr[0]->name : std::to_string(tDatumsNoPtr[0]->id)) + "_pose_heatmaps";
                 spHeatMapSaver->saveHeatMaps(poseHeatMaps, fileName);
                 // Profiling speed
                 Profiler::timerEnd(profilerKey);
-                Profiler::printAveragedTimeMsOnIterationX(profilerKey, __LINE__, __FUNCTION__, __FILE__, Profiler::DEFAULT_X);
+                Profiler::printAveragedTimeMsOnIterationX(profilerKey,
+                                                          __LINE__, __FUNCTION__, __FILE__);
                 // Debugging log
                 dLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             }
@@ -85,4 +88,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(WHeatMapSaver);
 }
 
-#endif // OPENPOSE__FILESTREAM__W_HEAT_MAP_SAVER_HPP
+#endif // OPENPOSE_FILESTREAM_W_HEAT_MAP_SAVER_HPP

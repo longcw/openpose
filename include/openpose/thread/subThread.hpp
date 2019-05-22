@@ -1,9 +1,8 @@
-#ifndef OPENPOSE__THREAD__SUB_THREAD_HPP
-#define OPENPOSE__THREAD__SUB_THREAD_HPP
+#ifndef OPENPOSE_THREAD_SUB_THREAD_HPP
+#define OPENPOSE_THREAD_SUB_THREAD_HPP
 
-#include <vector>
-#include "../utilities/macros.hpp"
-#include "worker.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/thread/worker.hpp>
 
 namespace op
 {
@@ -21,7 +20,7 @@ namespace op
         virtual bool work() = 0;
 
     protected:
-        inline int getTWorkersSize() const
+        inline size_t getTWorkersSize() const
         {
             return mTWorkers.size();
         }
@@ -40,8 +39,6 @@ namespace op
 
 
 // Implementation
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
 namespace op
 {
     template<typename TDatums, typename TWorker>
@@ -146,7 +143,7 @@ namespace op
         try
         {
             for (auto& tWorker : mTWorkers)
-                tWorker->initializationOnThread();
+                tWorker->initializationOnThreadNoException();
         }
         catch (const std::exception& e)
         {
@@ -157,4 +154,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(SubThread);
 }
 
-#endif // OPENPOSE__THREAD__SUB_THREAD_HPP
+#endif // OPENPOSE_THREAD_SUB_THREAD_HPP

@@ -1,5 +1,5 @@
-#ifndef OPENPOSE__POSE__ENUM_CLASSES_HPP
-#define OPENPOSE__POSE__ENUM_CLASSES_HPP
+#ifndef OPENPOSE_POSE_ENUM_CLASSES_HPP
+#define OPENPOSE_POSE_ENUM_CLASSES_HPP
 
 namespace op
 {
@@ -8,9 +8,24 @@ namespace op
      */
     enum class PoseModel : unsigned char
     {
-        COCO_18 = 0,    /**< COCO model, with 18+1 components (see poseParameters.hpp for details). */
+        /**
+         * COCO + 6 foot keypoints + neck + lower abs model, with 25+1 components (see poseParameters.hpp for details).
+         */
+        BODY_25 = 0,
+        COCO_18,        /**< COCO model + neck, with 18+1 components (see poseParameters.hpp for details). */
         MPI_15,         /**< MPI model, with 15+1 components (see poseParameters.hpp for details). */
-        MPI_15_4,       /**< Same MPI model, but reducing the number of CNN stages to 4 (see poseModel.cpp for details). It should increase speed and reduce accuracy.*/
+        MPI_15_4,       /**< Variation of the MPI model, reduced number of CNN stages to 4: faster but less accurate.*/
+        BODY_19,        /**< Experimental. Do not use. */
+        BODY_19_X2,     /**< Experimental. Do not use. */
+        BODY_19N,       /**< Experimental. Do not use. */
+        BODY_25E,       /**< Experimental. Do not use. */
+        CAR_12,         /**< Experimental. Do not use. */
+        BODY_25D,       /**< Experimental. Do not use. */
+        BODY_23,        /**< Experimental. Do not use. */
+        CAR_22,         /**< Experimental. Do not use. */
+        BODY_19E,       /**< Experimental. Do not use. */
+        BODY_25B,       /**< Experimental. Do not use. */
+        BODY_135,       /**< Experimental. Do not use. */
         Size,
     };
 
@@ -25,4 +40,4 @@ namespace op
     };
 }
 
-#endif // OPENPOSE__POSE__ENUM_CLASSES_HPP
+#endif // OPENPOSE_POSE_ENUM_CLASSES_HPP

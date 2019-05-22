@@ -1,9 +1,9 @@
-#ifndef OPENPOSE__THREAD__QUEUE_HPP
-#define OPENPOSE__THREAD__QUEUE_HPP 
+#ifndef OPENPOSE_THREAD_QUEUE_HPP
+#define OPENPOSE_THREAD_QUEUE_HPP 
 
 #include <queue> // std::queue
-#include "../utilities/macros.hpp"
-#include "queueBase.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/thread/queueBase.hpp>
 
 namespace op
 {
@@ -12,6 +12,8 @@ namespace op
     {
     public:
         explicit Queue(const long long maxSize);
+
+        virtual ~Queue();
 
         TDatums front() const;
 
@@ -28,9 +30,6 @@ namespace op
 
 // Implementation
 #include <type_traits> // std::is_same
-#include <vector>
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
 namespace op
 {
     template<typename TDatums, typename TQueue>
@@ -41,6 +40,11 @@ namespace op
         typedef typename TQueue::value_type underlyingValueType;
         static_assert(std::is_same<TDatums, underlyingValueType>::value,
                       "Error: The type of the queue must be the same as the type of the container");
+    }
+
+    template<typename TDatums, typename TQueue>
+    Queue<TDatums, TQueue>::~Queue()
+    {
     }
 
     template<typename TDatums, typename TQueue>
@@ -81,4 +85,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(Queue);
 }
 
-#endif // OPENPOSE__THREAD__QUEUE_HPP
+#endif // OPENPOSE_THREAD_QUEUE_HPP

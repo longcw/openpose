@@ -1,12 +1,15 @@
-#ifndef OPENPOSE__WRAPPER__HEADERS_HPP
-#define OPENPOSE__WRAPPER__HEADERS_HPP
+#ifndef OPENPOSE_WRAPPER_HEADERS_HPP
+#define OPENPOSE_WRAPPER_HEADERS_HPP
 
 // wrapper module
-#include "wrapper.hpp"
-#include "wrapperStructFace.hpp"
-#include "wrapperStructHand.hpp"
-#include "wrapperStructInput.hpp"
-#include "wrapperStructOutput.hpp"
-#include "wrapperStructPose.hpp"
+#include <openpose/wrapper/enumClasses.hpp>
+#include <openpose/wrapper/wrapper.hpp>
+#include <openpose/wrapper/wrapperAuxiliary.hpp>
+#include <openpose/wrapper/wrapperStructFace.hpp>
+#include <openpose/wrapper/wrapperStructGui.hpp>
+#include <openpose/wrapper/wrapperStructHand.hpp>
+#include <openpose/wrapper/wrapperStructInput.hpp>
+#include <openpose/wrapper/wrapperStructOutput.hpp>
+#include <openpose/wrapper/wrapperStructPose.hpp>
 
-#endif // OPENPOSE__WRAPPER__HEADERS_HPP
+#endif // OPENPOSE_WRAPPER_HEADERS_HPP

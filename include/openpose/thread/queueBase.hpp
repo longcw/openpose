@@ -1,10 +1,10 @@
-#ifndef OPENPOSE__THREAD__QUEUE_BASE_HPP
-#define OPENPOSE__THREAD__QUEUE_BASE_HPP 
+#ifndef OPENPOSE_THREAD_QUEUE_BASE_HPP
+#define OPENPOSE_THREAD_QUEUE_BASE_HPP
 
-#include <queue> // std::queue & std::priority_queue
 #include <condition_variable>
 #include <mutex>
-#include "../utilities/macros.hpp"
+#include <queue> // std::queue & std::priority_queue
+#include <openpose/core/common.hpp>
 
 namespace op
 {
@@ -48,6 +48,8 @@ namespace op
 
         bool isRunning() const;
 
+        bool isFull() const;
+
         size_t size() const;
 
         void clear();
@@ -66,7 +68,7 @@ namespace op
 
         virtual bool pop(TDatums& tDatums) = 0;
 
-        long long getMaxSize() const;
+        unsigned long long getMaxSize() const;
 
     private:
         const long long mMaxSize;
@@ -88,12 +90,8 @@ namespace op
 
 
 // Implementation
-#include <memory> // std::shared_ptr
-#include <vector>
-#include "../core/datum.hpp"
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/fastMath.hpp"
-#include "../utilities/macros.hpp"
+#include <openpose/core/datum.hpp>
+#include <openpose/utilities/fastMath.hpp>
 namespace op
 {
     template<typename TDatums, typename TQueue>
@@ -388,6 +386,21 @@ namespace op
     }
 
     template<typename TDatums, typename TQueue>
+    bool QueueBase<TDatums, TQueue>::isFull() const
+    {
+        try
+        {
+            // No mutex required because the size() and getMaxSize() are already thread-safe
+            return size() == getMaxSize();
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+            return false;
+        }
+    }
+
+    template<typename TDatums, typename TQueue>
     size_t QueueBase<TDatums, TQueue>::size() const
     {
         try
@@ -398,7 +411,7 @@ namespace op
         catch (const std::exception& e)
         {
             error(e.what(), __LINE__, __FUNCTION__, __FILE__);
-            return -1;
+            return 0;
         }
     }
 
@@ -418,7 +431,7 @@ namespace op
     }
 
     template<typename TDatums, typename TQueue>
-    long long QueueBase<TDatums, TQueue>::getMaxSize() const
+    unsigned long long QueueBase<TDatums, TQueue>::getMaxSize() const
     {
         try
         {
@@ -501,8 +514,11 @@ namespace op
         }
     }
 
-    extern template class QueueBase<DATUM_BASE, std::queue<DATUM_BASE>>;
-    extern template class QueueBase<DATUM_BASE, std::priority_queue<DATUM_BASE, std::vector<DATUM_BASE>, std::greater<DATUM_BASE>>>;
+    extern template class QueueBase<BASE_DATUMS_SH, std::queue<BASE_DATUMS_SH>>;
+    extern template class QueueBase<
+        BASE_DATUMS_SH,
+        std::priority_queue<BASE_DATUMS_SH, std::vector<BASE_DATUMS_SH>,
+        std::greater<BASE_DATUMS_SH>>>;
 }
 
-#endif // OPENPOSE__THREAD__QUEUE_BASE_HPP
+#endif // OPENPOSE_THREAD_QUEUE_BASE_HPP

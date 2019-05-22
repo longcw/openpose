@@ -1,7 +1,8 @@
-#ifndef OPENPOSE__THREAD__WORKER_PRODUCER_HPP
-#define OPENPOSE__THREAD__WORKER_PRODUCER_HPP
+#ifndef OPENPOSE_THREAD_WORKER_PRODUCER_HPP
+#define OPENPOSE_THREAD_WORKER_PRODUCER_HPP
 
-#include "worker.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/thread/worker.hpp>
 
 namespace op
 {
@@ -11,10 +12,7 @@ namespace op
     public:
         virtual ~WorkerProducer();
 
-        inline void work(TDatums& tDatums)
-        {
-            tDatums = std::move(workProducer());
-        }
+        void work(TDatums& tDatums);
 
     protected:
         virtual TDatums workProducer() = 0;
@@ -26,7 +24,6 @@ namespace op
 
 
 // Implementation
-#include "../utilities/macros.hpp"
 namespace op
 {
     template<typename TDatums>
@@ -34,7 +31,21 @@ namespace op
     {
     }
 
+    template<typename TDatums>
+    void WorkerProducer<TDatums>::work(TDatums& tDatums)
+    {
+        try
+        {
+            tDatums = std::move(workProducer());
+        }
+        catch (const std::exception& e)
+        {
+            this->stop();
+            errorWorker(e.what(), __LINE__, __FUNCTION__, __FILE__);
+        }
+    }
+
     COMPILE_TEMPLATE_DATUM(WorkerProducer);
 }
 
-#endif // OPENPOSE__THREAD__WORKER_PRODUCER_HPP
+#endif // OPENPOSE_THREAD_WORKER_PRODUCER_HPP

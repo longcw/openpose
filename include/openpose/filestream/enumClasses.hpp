@@ -1,5 +1,5 @@
-#ifndef OPENPOSE__FILESTREAM__ENUM_CLASSES_HPP
-#define OPENPOSE__FILESTREAM__ENUM_CLASSES_HPP
+#ifndef OPENPOSE_FILESTREAM_ENUM_CLASSES_HPP
+#define OPENPOSE_FILESTREAM_ENUM_CLASSES_HPP
 
 namespace op
 {
@@ -10,6 +10,17 @@ namespace op
         Yaml,
         Yml,
     };
+
+    enum class CocoJsonFormat : unsigned char
+    {
+        Body,
+        Hand21,
+        Hand42,
+        Face,
+        Foot,
+        Car,
+        Size,
+    };
 }
 
-#endif // OPENPOSE__FILESTREAM__ENUM_CLASSES_HPP
+#endif // OPENPOSE_FILESTREAM_ENUM_CLASSES_HPP

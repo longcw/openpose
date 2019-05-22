@@ -1,10 +1,12 @@
-#ifndef OPENPOSE__UTILITIES__STRING_HPP
-#define OPENPOSE__UTILITIES__STRING_HPP
+#ifndef OPENPOSE_UTILITIES_STRING_HPP
+#define OPENPOSE_UTILITIES_STRING_HPP
 
-#include <string>
+#include <openpose/core/common.hpp>
 
 namespace op
 {
+    OP_API unsigned long long getLastNumber(const std::string& string);
+
     /**
      * This template function turns an integer number into a fixed-length std::string.
      * @param number T integer corresponding to the integer to be formatted.
@@ -14,6 +16,12 @@ namespace op
      */
     template<typename T>
     std::string toFixedLengthString(const T number, const unsigned long long stringLength = 0);
+
+    OP_API std::vector<std::string> splitString(const std::string& stringToSplit, const std::string& delimiter);
+
+    OP_API std::string toLower(const std::string& string);
+
+    OP_API std::string toUpper(const std::string& string);
 }
 
-#endif // OPENPOSE__UTILITIES__STRING_HPP
+#endif // OPENPOSE_UTILITIES_STRING_HPP

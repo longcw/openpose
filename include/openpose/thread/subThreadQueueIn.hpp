@@ -1,11 +1,10 @@
-#ifndef OPENPOSE__SUB_THREAD__THREAD_QUEUE_IN_HPP
-#define OPENPOSE__SUB_THREAD__THREAD_QUEUE_IN_HPP
+#ifndef OPENPOSE_THREAD_THREAD_QUEUE_IN_HPP
+#define OPENPOSE_THREAD_THREAD_QUEUE_IN_HPP
 
-#include <memory> // std::shared_ptr
-#include <vector>
-#include "thread.hpp"
-#include "queue.hpp"
-#include "worker.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/thread/queue.hpp>
+#include <openpose/thread/thread.hpp>
+#include <openpose/thread/worker.hpp>
 
 namespace op
 {
@@ -14,6 +13,8 @@ namespace op
     {
     public:
         SubThreadQueueIn(const std::vector<TWorker>& tWorkers, const std::shared_ptr<TQueue>& tQueueIn);
+
+        virtual ~SubThreadQueueIn();
 
         bool work();
 
@@ -29,16 +30,20 @@ namespace op
 
 
 // Implementation
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
 namespace op
 {
     template<typename TDatums, typename TWorker, typename TQueue>
-    SubThreadQueueIn<TDatums, TWorker, TQueue>::SubThreadQueueIn(const std::vector<TWorker>& tWorkers, const std::shared_ptr<TQueue>& tQueueIn) :
+    SubThreadQueueIn<TDatums, TWorker, TQueue>::SubThreadQueueIn(const std::vector<TWorker>& tWorkers,
+                                                                 const std::shared_ptr<TQueue>& tQueueIn) :
         SubThread<TDatums, TWorker>{tWorkers},
         spTQueueIn{tQueueIn}
     {
         // spTQueueIn->addPopper();
+    }
+
+    template<typename TDatums, typename TWorker, typename TQueue>
+    SubThreadQueueIn<TDatums, TWorker, TQueue>::~SubThreadQueueIn()
+    {
     }
 
     template<typename TDatums, typename TWorker, typename TQueue>
@@ -47,6 +52,8 @@ namespace op
         try
         {
             // Pop TDatums
+            if (spTQueueIn->empty())
+                std::this_thread::sleep_for(std::chrono::microseconds{100});
             TDatums tDatums;
             bool queueIsRunning = spTQueueIn->tryPop(tDatums);
             // Check queue not empty
@@ -70,4 +77,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(SubThreadQueueIn);
 }
 
-#endif // OPENPOSE__SUB_THREAD__THREAD_QUEUE_IN_HPP
+#endif // OPENPOSE_THREAD_THREAD_QUEUE_IN_HPP

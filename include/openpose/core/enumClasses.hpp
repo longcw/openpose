@@ -1,5 +1,5 @@
-#ifndef OPENPOSE__CORE__ENUM_CLASSES_HPP
-#define OPENPOSE__CORE__ENUM_CLASSES_HPP
+#ifndef OPENPOSE_CORE_ENUM_CLASSES_HPP
+#define OPENPOSE_CORE_ENUM_CLASSES_HPP
 
 namespace op
 {
@@ -11,6 +11,7 @@ namespace op
         ZeroToOne, // [0, 1]
         PlusMinusOne, // [-1, 1]
         UnsignedChar, // [0, 255]
+        NoScale,
     };
 
     enum class HeatMapType : unsigned char
@@ -19,6 +20,22 @@ namespace op
         Background,
         PAFs,
     };
+
+    enum class RenderMode : unsigned char
+    {
+        None,
+        Auto, // It will select Gpu if CUDA verison, or Cpu otherwise
+        Cpu,
+        Gpu,
+    };
+
+    enum class ElementToRender : unsigned char
+    {
+        Skeleton,
+        Background,
+        AddKeypoints,
+        AddPAFs,
+    };
 }
 
-#endif // OPENPOSE__CORE__ENUM_CLASSES_HPP
+#endif // OPENPOSE_CORE_ENUM_CLASSES_HPP

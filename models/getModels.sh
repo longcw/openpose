@@ -1,23 +1,36 @@
-# "------------------------- POSE MODELS -------------------------"
-# Downloading COCO and MPI models
-models_folder="pose/"
+# ------------------------- BODY, FOOT, FACE, AND HAND MODELS -------------------------
+# Downloading body pose (COCO and MPI), face and hand models
+OPENPOSE_URL="http://posefs1.perception.cs.cmu.edu/OpenPose/models/"
+POSE_FOLDER="pose/"
+FACE_FOLDER="face/"
+HAND_FOLDER="hand/"
 
-# COCO
-coco_folder="$models_folder"coco/""
-coco_model="$coco_folder"pose_iter_440000.caffemodel""
-if [ ! -f $coco_model ]; then
-    wget http://posefs1.perception.cs.cmu.edu/Users/tsimon/Projects/coco/data/models/coco/pose_iter_440000.caffemodel -P $coco_folder
-fi
+# ------------------------- POSE (BODY+FOOT) MODELS -------------------------
+# Body (BODY_25)
+BODY_25_FOLDER=${POSE_FOLDER}"body_25/"
+BODY_25_MODEL=${BODY_25_FOLDER}"pose_iter_584000.caffemodel"
+wget -c ${OPENPOSE_URL}${BODY_25_MODEL} -P ${BODY_25_FOLDER}
 
-# MPI
-mpi_folder="$models_folder"mpi/""
-mpi_model="$mpi_folder"pose_iter_160000.caffemodel""
-if [ ! -f $mpi_model ]; then
-    wget http://posefs1.perception.cs.cmu.edu/Users/tsimon/Projects/coco/data/models/mpi/pose_iter_160000.caffemodel -P $mpi_folder
-fi
+# Body (COCO)
+COCO_FOLDER=${POSE_FOLDER}"coco/"
+COCO_MODEL=${COCO_FOLDER}"pose_iter_440000.caffemodel"
+wget -c ${OPENPOSE_URL}${COCO_MODEL} -P ${COCO_FOLDER}
+# Alternative: it will not check whether file was fully downloaded
+# if [ ! -f $COCO_MODEL ]; then
+#     wget ${OPENPOSE_URL}$COCO_MODEL -P $COCO_FOLDER
+# fi
 
+# Body (MPI)
+MPI_FOLDER=${POSE_FOLDER}"mpi/"
+MPI_MODEL=${MPI_FOLDER}"pose_iter_160000.caffemodel"
+wget -c ${OPENPOSE_URL}${MPI_MODEL} -P ${MPI_FOLDER}
 
+# "------------------------- FACE MODELS -------------------------"
+# Face
+FACE_MODEL=${FACE_FOLDER}"pose_iter_116000.caffemodel"
+wget -c ${OPENPOSE_URL}${FACE_MODEL} -P ${FACE_FOLDER}
 
-# EXTRA - Other paths
-# /media/posenas1b/Users/zhe/arch/MPI_exp_caffe/pose43/exp04/model/pose_iter_264000.caffemodel
-# cubeserver1:/home/zhe/Real-time-CPM-for-multiple-people/model/pose_iter_166000.caffemodel
+# "------------------------- HAND MODELS -------------------------"
+# Hand
+HAND_MODEL=$HAND_FOLDER"pose_iter_102000.caffemodel"
+wget -c ${OPENPOSE_URL}${HAND_MODEL} -P ${HAND_FOLDER}

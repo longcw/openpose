@@ -1,24 +1,32 @@
-#ifndef OPENPOSE__CORE__CV_MAT_TO_OP_INPUT_HPP
-#define OPENPOSE__CORE__CV_MAT_TO_OP_INPUT_HPP
+#ifndef OPENPOSE_CORE_CV_MAT_TO_OP_INPUT_HPP
+#define OPENPOSE_CORE_CV_MAT_TO_OP_INPUT_HPP
 
-#include <vector>
-#include <opencv2/core/core.hpp>
-#include "array.hpp"
+#include <opencv2/core/core.hpp> // cv::Mat
+#include <openpose/core/common.hpp>
+#include <openpose/pose/enumClasses.hpp>
 
 namespace op
 {
-    class CvMatToOpInput
+    class OP_API CvMatToOpInput
     {
     public:
-        CvMatToOpInput(const cv::Size& netInputResolution, const int scaleNumber = 1, const float scaleGap = 0.25);
+        CvMatToOpInput(const PoseModel poseModel = PoseModel::BODY_25, const bool gpuResize = false);
 
-        Array<float> format(const cv::Mat& cvInputData) const;
+        virtual ~CvMatToOpInput();
+
+        std::vector<Array<float>> createArray(
+            const cv::Mat& cvInputData, const std::vector<double>& scaleInputToNetInputs,
+            const std::vector<Point<int>>& netInputSizes);
 
     private:
-        const int mScaleNumber;
-        const float mScaleGap;
-        const std::vector<int> mInputNetSize4D;
+        const PoseModel mPoseModel;
+        const bool mGpuResize;
+        unsigned char* pInputImageCuda;
+        float* pInputImageReorderedCuda;
+        float* pOutputImageCuda;
+        unsigned long long pInputMaxSize;
+        unsigned long long pOutputMaxSize;
     };
 }
 
-#endif // OPENPOSE__CORE__CV_MAT_TO_OP_INPUT_HPP
+#endif // OPENPOSE_CORE_CV_MAT_TO_OP_INPUT_HPP

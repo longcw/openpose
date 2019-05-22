@@ -1,11 +1,10 @@
-#ifndef OPENPOSE__SUB_THREAD__THREAD_QUEUE_OUT_HPP
-#define OPENPOSE__SUB_THREAD__THREAD_QUEUE_OUT_HPP
+#ifndef OPENPOSE_THREAD_THREAD_QUEUE_OUT_HPP
+#define OPENPOSE_THREAD_THREAD_QUEUE_OUT_HPP
 
-#include <memory> // std::shared_ptr
-#include <vector>
-#include "thread.hpp"
-#include "queue.hpp"
-#include "worker.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/thread/queue.hpp>
+#include <openpose/thread/thread.hpp>
+#include <openpose/thread/worker.hpp>
 
 namespace op
 {
@@ -14,6 +13,8 @@ namespace op
     {
     public:
         SubThreadQueueOut(const std::vector<TWorker>& tWorkers, const std::shared_ptr<TQueue>& tQueueOut);
+
+        virtual ~SubThreadQueueOut();
 
         bool work();
 
@@ -29,8 +30,6 @@ namespace op
 
 
 // Implementation
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
 namespace op
 {
     template<typename TDatums, typename TWorker, typename TQueue>
@@ -43,6 +42,11 @@ namespace op
     }
 
     template<typename TDatums, typename TWorker, typename TQueue>
+    SubThreadQueueOut<TDatums, TWorker, TQueue>::~SubThreadQueueOut()
+    {
+    }
+
+    template<typename TDatums, typename TWorker, typename TQueue>
     bool SubThreadQueueOut<TDatums, TWorker, TQueue>::work()
     {
         try
@@ -52,19 +56,29 @@ namespace op
                 return false;
             else
             {
-                // Process TDatums
-                TDatums tDatums;
-                const auto workersAreRunning = this->workTWorkers(tDatums, true);
-                // Push/emplace tDatums if successfully processed
-                if (workersAreRunning)
+                // Don't work until next queue is not full
+                // This reduces latency to half
+                if (!spTQueueOut->isFull())
                 {
-                    if (tDatums != nullptr)
-                        spTQueueOut->waitAndEmplace(tDatums);
+                    // Process TDatums
+                    TDatums tDatums;
+                    const auto workersAreRunning = this->workTWorkers(tDatums, true);
+                    // Push/emplace tDatums if successfully processed
+                    if (workersAreRunning)
+                    {
+                        if (tDatums != nullptr)
+                            spTQueueOut->waitAndEmplace(tDatums);
+                    }
+                    // Close queue otherwise
+                    else
+                        spTQueueOut->stopPusher();
+                    return workersAreRunning;
                 }
-                // Close queue otherwise
                 else
-                    spTQueueOut->stopPusher();
-                return workersAreRunning;
+                {
+                    std::this_thread::sleep_for(std::chrono::microseconds{100});
+                    return true;
+                }
             }
         }
         catch (const std::exception& e)
@@ -78,4 +92,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(SubThreadQueueOut);
 }
 
-#endif // OPENPOSE__SUB_THREAD__THREAD_QUEUE_OUT_HPP
+#endif // OPENPOSE_THREAD_THREAD_QUEUE_OUT_HPP

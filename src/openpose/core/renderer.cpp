@@ -1,25 +1,53 @@
-#include <cuda.h>
-#include <cuda_runtime_api.h>
-#include "openpose/utilities/errorAndLog.hpp"
-#include "openpose/core/renderer.hpp"
+#include <openpose/core/renderer.hpp>
 
 namespace op
 {
-    Renderer::Renderer(const unsigned long long volume) :
-        spGpuMemoryPtr{std::make_shared<float*>()},
-        mVolume{volume},
-        mIsFirstRenderer{true},
-        mIsLastRenderer{true},
-        spGpuMemoryAllocated{std::make_shared<bool>(false)}
+    Renderer::Renderer(const float renderThreshold, const float alphaKeypoint,
+                       const float alphaHeatMap, const bool blendOriginalFrame,
+                       const unsigned int elementToRender, const unsigned int numberElementsToRender) :
+        mRenderThreshold{renderThreshold},
+        mBlendOriginalFrame{blendOriginalFrame},
+        spElementToRender{std::make_shared<std::atomic<unsigned int>>(elementToRender)},
+        spNumberElementsToRender{std::make_shared<const unsigned int>(numberElementsToRender)},
+        mShowGooglyEyes{false},
+        mAlphaKeypoint{alphaKeypoint},
+        mAlphaHeatMap{alphaHeatMap}
     {
+        try
+        {
+            // Sanity checks
+            if (mAlphaKeypoint < 0.f || mAlphaKeypoint > 1.f)
+                error("The value of mAlphaKeypoint (flag `--alpha_pose`) must be between 0 and 1.",
+                      __LINE__, __FUNCTION__, __FILE__);
+            if (mAlphaHeatMap < 0.f || mAlphaHeatMap > 1.f)
+                error("The value of mAlphaHeatMap (flag `--alpha_heatmap`) must be between 0 and 1.",
+                      __LINE__, __FUNCTION__, __FILE__);
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+        }
     }
 
     Renderer::~Renderer()
     {
+    }
+
+    void Renderer::increaseElementToRender(const int increment)
+    {
         try
         {
-            if (mIsLastRenderer)
-                cudaFree(*spGpuMemoryPtr);
+            // Sanity check
+            if (*spNumberElementsToRender == 0)
+                error("Number elements to render cannot be 0 for this function.",
+                      __LINE__, __FUNCTION__, __FILE__);
+            // Get current element to be rendered
+            auto elementToRender = (((int)(*spElementToRender) + increment) % (int)(*spNumberElementsToRender));
+            // Handling negative increments
+            while (elementToRender < 0)
+                elementToRender += *spNumberElementsToRender;
+            // Update final value
+            *spElementToRender = elementToRender;
         }
         catch (const std::exception& e)
         {
@@ -27,12 +55,11 @@ namespace op
         }
     }
 
-    void Renderer::initializationOnThread()
+    void Renderer::setElementToRender(const int elementToRender)
     {
         try
         {
-            if (mIsFirstRenderer)
-                cudaMalloc((void**)(spGpuMemoryPtr.get()), mVolume * sizeof(float));
+            *spElementToRender = elementToRender % *spNumberElementsToRender;
         }
         catch (const std::exception& e)
         {
@@ -40,28 +67,20 @@ namespace op
         }
     }
 
-    std::pair<std::shared_ptr<float*>, std::shared_ptr<bool>> Renderer::getGpuMemoryAndSetAsFirst()
+    void Renderer::setElementToRender(const ElementToRender elementToRender)
     {
         try
         {
-            mIsLastRenderer = false;
-            return std::make_pair(spGpuMemoryPtr, spGpuMemoryAllocated);
-        }
-        catch (const std::exception& e)
-        {
-            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
-            return std::make_pair(nullptr, nullptr);
-        }
-    }
-
-    void Renderer::setGpuMemoryAndSetIfLast(const std::pair<std::shared_ptr<float*>, std::shared_ptr<bool>>& gpuMemory, const bool isLast)
-    {
-        try
-        {
-            mIsFirstRenderer = false;
-            mIsLastRenderer = isLast;
-            spGpuMemoryPtr = gpuMemory.first;
-            spGpuMemoryAllocated = gpuMemory.second;
+            if (elementToRender == ElementToRender::Skeleton)
+                *spElementToRender = 0;
+            else if (elementToRender == ElementToRender::Background)
+                *spElementToRender = 1;
+            else if (elementToRender == ElementToRender::AddKeypoints)
+                *spElementToRender = 2;
+            else if (elementToRender == ElementToRender::AddPAFs)
+                *spElementToRender = 3;
+            else
+                error("Unknown ElementToRender value.", __LINE__, __FUNCTION__, __FILE__);
         }
         catch (const std::exception& e)
         {
@@ -69,15 +88,24 @@ namespace op
         }
     }
 
-    void Renderer::cpuToGpuMemoryIfNotCopiedYet(const float* const cpuMemory)
+    float Renderer::getAlphaKeypoint() const
     {
         try
         {
-            if (!*spGpuMemoryAllocated)
-            {
-                cudaMemcpy(*spGpuMemoryPtr, cpuMemory, mVolume * sizeof(float), cudaMemcpyHostToDevice);
-                *spGpuMemoryAllocated = true;
-            }
+            return mAlphaKeypoint;
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+            return 0.f;
+        }
+    }
+
+    void Renderer::setAlphaKeypoint(const float alphaKeypoint)
+    {
+        try
+        {
+            mAlphaKeypoint = alphaKeypoint;
         }
         catch (const std::exception& e)
         {
@@ -85,15 +113,74 @@ namespace op
         }
     }
 
-    void Renderer::gpuToCpuMemoryIfLastRenderer(float* cpuMemory)
+    float Renderer::getAlphaHeatMap() const
     {
         try
         {
-            if (*spGpuMemoryAllocated && mIsLastRenderer)
-            {
-                cudaMemcpy(cpuMemory, *spGpuMemoryPtr, mVolume * sizeof(float), cudaMemcpyDeviceToHost);
-                *spGpuMemoryAllocated = false;
-            }
+            return mAlphaHeatMap;
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+            return 0.f;
+        }
+    }
+
+    void Renderer::setAlphaHeatMap(const float alphaHeatMap)
+    {
+        try
+        {
+            mAlphaHeatMap = alphaHeatMap;
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+        }
+    }
+
+    bool Renderer::getBlendOriginalFrame() const
+    {
+        try
+        {
+            return mBlendOriginalFrame;
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+            return false;
+        }
+    }
+
+    void Renderer::setBlendOriginalFrame(const bool blendOriginalFrame)
+    {
+        try
+        {
+            mBlendOriginalFrame = blendOriginalFrame;
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+        }
+    }
+
+    bool Renderer::getShowGooglyEyes() const
+    {
+        try
+        {
+            return mShowGooglyEyes;
+        }
+        catch (const std::exception& e)
+        {
+            error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+            return false;
+        }
+    }
+
+    void Renderer::setShowGooglyEyes(const bool showGooglyEyes)
+    {
+        try
+        {
+            mShowGooglyEyes = showGooglyEyes;
         }
         catch (const std::exception& e)
         {

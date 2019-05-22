@@ -1,9 +1,9 @@
-#ifndef OPENPOSE__SUB_THREAD__THREAD_NO_QUEUE_HPP
-#define OPENPOSE__SUB_THREAD__THREAD_NO_QUEUE_HPP
+#ifndef OPENPOSE_THREAD_THREAD_NO_QUEUE_HPP
+#define OPENPOSE_THREAD_THREAD_NO_QUEUE_HPP
 
-#include <vector>
-#include "thread.hpp"
-#include "worker.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/thread/thread.hpp>
+#include <openpose/thread/worker.hpp>
 
 namespace op
 {
@@ -12,6 +12,8 @@ namespace op
     {
     public:
         explicit SubThreadNoQueue(const std::vector<TWorker>& tWorkers);
+
+        virtual ~SubThreadNoQueue();
 
         bool work();
 
@@ -24,14 +26,18 @@ namespace op
 
 
 // Implementation
-#include "../utilities/errorAndLog.hpp"
-#include "../utilities/macros.hpp"
 namespace op
 {
     template<typename TDatums, typename TWorker>
     SubThreadNoQueue<TDatums, TWorker>::SubThreadNoQueue(const std::vector<TWorker>& tWorkers) :
         SubThread<TDatums, TWorker>{tWorkers}
-    {}
+    {
+    }
+
+    template<typename TDatums, typename TWorker>
+    SubThreadNoQueue<TDatums, TWorker>::~SubThreadNoQueue()
+    {
+    }
 
     template<typename TDatums, typename TWorker>
     bool SubThreadNoQueue<TDatums, TWorker>::work()
@@ -51,4 +57,4 @@ namespace op
     COMPILE_TEMPLATE_DATUM(SubThreadNoQueue);
 }
 
-#endif // OPENPOSE__SUB_THREAD__THREAD_NO_QUEUE_HPP
+#endif // OPENPOSE_THREAD_THREAD_NO_QUEUE_HPP

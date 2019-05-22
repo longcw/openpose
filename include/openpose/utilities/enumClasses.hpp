@@ -1,5 +1,5 @@
-#ifndef OPENPOSE__UTILITIES__ENUM_CLASSES_HPP
-#define OPENPOSE__UTILITIES__ENUM_CLASSES_HPP
+#ifndef OPENPOSE_UTILITIES_ENUM_CLASSES_HPP
+#define OPENPOSE_UTILITIES_ENUM_CLASSES_HPP
 
 namespace op
 {
@@ -27,6 +27,12 @@ namespace op
         Max = 4,
         NoOutput = 255,
     };
+
+    enum class Extensions : unsigned char
+    {
+        Images, // jpg, png, ...
+        Size
+    };
 }
 
-#endif // OPENPOSE__UTILITIES__ENUM_CLASSES_HPP
+#endif // OPENPOSE_UTILITIES_ENUM_CLASSES_HPP

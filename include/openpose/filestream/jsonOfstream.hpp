@@ -1,18 +1,32 @@
-#ifndef OPENPOSE__FILESTREAM__JSON_OFSTREAM_HPP
-#define OPENPOSE__FILESTREAM__JSON_OFSTREAM_HPP
+#ifndef OPENPOSE_FILESTREAM_JSON_OFSTREAM_HPP
+#define OPENPOSE_FILESTREAM_JSON_OFSTREAM_HPP
 
 #include <fstream> // std::ofstream
-#include <string>
-#include "../utilities/macros.hpp"
+#include <openpose/core/common.hpp>
 
 namespace op
 {
-    class JsonOfstream
+    class OP_API JsonOfstream
     {
     public:
         explicit JsonOfstream(const std::string& filePath, const bool humanReadable = true);
 
-        ~JsonOfstream();
+        /**
+         * Move constructor.
+         * It destroys the original JsonOfstream to be moved.
+         * @param array JsonOfstream to be moved.
+         */
+        JsonOfstream(JsonOfstream&& jsonOfstream);
+
+        /**
+         * Move assignment.
+         * Similar to JsonOfstream(JsonOfstream&& jsonOfstream).
+         * @param array JsonOfstream to be moved.
+         * @return The resulting JsonOfstream.
+         */
+        JsonOfstream& operator=(JsonOfstream&& jsonOfstream);
+
+        virtual ~JsonOfstream();
 
         void objectOpen();
 
@@ -22,29 +36,31 @@ namespace op
 
         void arrayClose();
 
+        void version(const std::string& version);
+
         void key(const std::string& string);
 
         template <typename T>
         inline void plainText(const T& value)
         {
-            mOfstream << value;
+            *upOfstream << value;
         }
 
         inline void comma()
         {
-            mOfstream << ",";
+            *upOfstream << ",";
         }
 
         void enter();
 
     private:
-        const bool mHumanReadable;
+        bool mHumanReadable;
         long long mBracesCounter;
         long long mBracketsCounter;
-        std::ofstream mOfstream;
+        std::unique_ptr<std::ofstream> upOfstream; // std::unique_ptr to solve std::move issue in GCC < 5
 
         DELETE_COPY(JsonOfstream);
     };
 }
 
-#endif // OPENPOSE__FILESTREAM__JSON_OFSTREAM_HPP
+#endif // OPENPOSE_FILESTREAM_JSON_OFSTREAM_HPP

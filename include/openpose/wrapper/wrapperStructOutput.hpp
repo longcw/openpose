@@ -1,58 +1,67 @@
-#ifndef OPENPOSE__WRAPPER__WRAPPER_STRUCT_OUTPUT_HPP
-#define OPENPOSE__WRAPPER__WRAPPER_STRUCT_OUTPUT_HPP
+#ifndef OPENPOSE_WRAPPER_WRAPPER_STRUCT_OUTPUT_HPP
+#define OPENPOSE_WRAPPER_WRAPPER_STRUCT_OUTPUT_HPP
 
-#include <string>
-#include "../filestream/enumClasses.hpp"
+#include <openpose/core/common.hpp>
+#include <openpose/filestream/enumClasses.hpp>
+#include <openpose/gui/enumClasses.hpp>
 
 namespace op
 {
     /**
-     * WrapperStructOutput: Output (small GUI, writing rendered results and/or pose data, etc.) configuration struct.
-     * WrapperStructOutput allows the user to set up the input frames generator.
+     * WrapperStructOutput: Output ( writing rendered results and/or pose data, etc.) configuration struct.
      */
-    struct WrapperStructOutput
+    struct OP_API WrapperStructOutput
     {
         /**
-         * Whether to display the OpenPose small integrated GUI.
+         * Output verbose in the command line.
+         * If -1, it will be disabled (default). If it is a positive integer number, it will print on"
+         * the command line every `verbose` frames. If number in the range (0,1), it will print the"
+         * progress every `verbose` times the total of frames.
          */
-        bool displayGui;
-
-        /**
-         * Whether to add some information to the frame (number of frame, number people detected, etc.) after it is saved on disk
-         * and before it is displayed and/or returned to the user.
-         */
-        bool guiVerbose;
-
-        /**
-         * Whether to display the OpenPose small integrated GUI on fullscreen mode. It can be changed by interacting with the GUI itself.
-         */
-        bool fullScreen;
+        double verbose;
 
         /**
          * Pose (x, y, score) locations saving folder location.
          * If it is empty (default), it is disabled.
-         * Select format with writePoseDataFormat.
+         * Select format with writeKeypointFormat.
          */
-        std::string writePose;
+        std::string writeKeypoint;
 
         /**
          * Data format to save Pose (x, y, score) locations.
          * Options: DataFormat::Json (default), DataFormat::Xml and DataFormat::Yml (equivalent to DataFormat::Yaml)
          * JSON option only available for OpenCV >= 3.0.
          */
-        DataFormat writePoseDataFormat;
+        DataFormat writeKeypointFormat;
 
         /**
-         * Pose (x, y, score) locations saving folder location in JSON format (e.g. useful when needed JSON but using OpenCV < 3.0).
+         * Directory to write OpenPose output in JSON format.
          * If it is empty (default), it is disabled.
+         * It includes:
+         *     - `people` field with body, hand, and face pose keypoints in (x, y, score) format.
+         *     - `part_candidates` field with body part candidates in (x, y, score) format (if enabled with
+         *       `--part_candidates`).
          */
-        std::string writePoseJson;
+        std::string writeJson;
 
         /**
          * Pose (x, y, score) locations saving folder location in JSON COCO validation format.
          * If it is empty (default), it is disabled.
          */
         std::string writeCocoJson;
+
+        /**
+         * It selects the COCO variants for cocoJsonSaver.
+         * Add 1 for body, add 2 for foot, 4 for face, and/or 8 for hands. Use 0 to use all the possible candidates.
+         * E.g., 7 would mean body+foot+face COCO JSON..
+         */
+        int writeCocoJsonVariants;
+
+        /**
+         * Experimental option (only makes effect on car JSON generation).
+         * It selects the COCO variant for cocoJsonSaver.
+         */
+        int writeCocoJsonVariant;
 
         /**
          * Rendered image saving folder.
@@ -63,7 +72,7 @@ namespace op
         /**
          * Rendered image saving folder format.
          * Check your OpenCV version documentation for a list of compatible formats.
-         * E.g. png, jpg, etc.
+         * E.g., png, jpg, etc.
          * If writeImages is empty (default), it makes no effect.
          */
         std::string writeImagesFormat;
@@ -74,6 +83,20 @@ namespace op
          * If it is empty (default), it is disabled.
          */
         std::string writeVideo;
+
+        /**
+         * Frame rate of the recorded video.
+         * By default (-1.), it will try to get the input frames producer frame rate (e.g., input video or webcam frame
+         * rate). If the input frames producer does not have a set FPS (e.g., image_dir or webcam if OpenCV not
+         * compiled with its support), set this value accordingly (e.g., to the frame rate displayed by the OpenPose
+         * GUI).
+         */
+        double writeVideoFps;
+
+        /**
+         * Whether to save the output video with audio. The input producer must be a video too.
+         */
+        bool writeVideoWithAudio;
 
         /**
          * Rendered heat maps saving folder.
@@ -89,15 +112,53 @@ namespace op
         std::string writeHeatMapsFormat;
 
         /**
+         * Rendered 3D images saving video path.
+         * Please, use *.avi format.
+         * If it is empty (default), it is disabled.
+         */
+        std::string writeVideo3D;
+
+        /**
+         * Rendered Adam images saving video path.
+         * Please, use *.avi format.
+         * If it is empty (default), it is disabled.
+         */
+        std::string writeVideoAdam;
+
+        /**
+         * Path to save a 3-D joint angle BVH file.
+         * Please, use *.bvh format.
+         * If it is empty (default), it is disabled.
+         */
+        std::string writeBvh;
+
+        /**
+         * Target server IP address for UDP client-server communication.
+         */
+        std::string udpHost;
+
+        /**
+         * Target server IP port for UDP client-server communication.
+         */
+        std::string udpPort;
+
+        /**
          * Constructor of the struct.
          * It has the recommended and default values we recommend for each element of the struct.
          * Since all the elements of the struct are public, they can also be manually filled.
          */
-        WrapperStructOutput(const bool displayGui = false, const bool guiVerbose = false, const bool fullScreen = false, const std::string& writePose = "",
-                            const DataFormat writePoseDataFormat = DataFormat::Xml, const std::string& writePoseJson = "", const std::string& writeCocoJson = "",
-                            const std::string& writeImages = "", const std::string& writeImagesFormat = "", const std::string& writeVideo = "",
-                            const std::string& writeHeatMaps = "", const std::string& writeHeatMapsFormat = "");
+        WrapperStructOutput(
+            const double verbose = -1, const std::string& writeKeypoint = "",
+            const DataFormat writeKeypointFormat = DataFormat::Xml, const std::string& writeJson = "",
+            const std::string& writeCocoJson = "", const int writeCocoJsonVariants = 1,
+            const int writeCocoJsonVariant = 1, const std::string& writeImages = "",
+            const std::string& writeImagesFormat = "png", const std::string& writeVideo = "",
+            const double writeVideoFps = -1., const bool writeVideoWithAudio = false,
+            const std::string& writeHeatMaps = "", const std::string& writeHeatMapsFormat = "png",
+            const std::string& writeVideo3D = "", const std::string& writeVideoAdam = "",
+            const std::string& writeBvh = "", const std::string& udpHost = "",
+            const std::string& udpPort = "8051");
     };
 }
 
-#endif // OPENPOSE__WRAPPER__WRAPPER_STRUCT_OUTPUT_HPP
+#endif // OPENPOSE_WRAPPER_WRAPPER_STRUCT_OUTPUT_HPP

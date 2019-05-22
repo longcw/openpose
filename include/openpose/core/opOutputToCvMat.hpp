@@ -1,21 +1,33 @@
-#ifndef OPENPOSE__CORE__OP_OUTPUT_TO_CV_MAT_HPP
-#define OPENPOSE__CORE__OP_OUTPUT_TO_CV_MAT_HPP
+#ifndef OPENPOSE_CORE_OP_OUTPUT_TO_CV_MAT_HPP
+#define OPENPOSE_CORE_OP_OUTPUT_TO_CV_MAT_HPP
 
-#include <opencv2/core/core.hpp>
-#include "array.hpp"
+#include <opencv2/core/core.hpp> // cv::Mat
+#include <openpose/core/common.hpp>
 
 namespace op
 {
-    class OpOutputToCvMat
+    class OP_API OpOutputToCvMat
     {
     public:
-        explicit OpOutputToCvMat(const cv::Size& outputResolution);
+        OpOutputToCvMat(const bool gpuResize = false);
 
-        cv::Mat formatToCvMat(const Array<float>& outputData) const;
+        virtual ~OpOutputToCvMat();
+
+        void setSharedParameters(
+            const std::tuple<std::shared_ptr<float*>, std::shared_ptr<bool>, std::shared_ptr<unsigned long long>>& tuple);
+
+        cv::Mat formatToCvMat(const Array<float>& outputData);
 
     private:
-        const cv::Size mOutputResolution;
+        const bool mGpuResize;
+        // Shared variables
+        std::shared_ptr<float*> spOutputImageFloatCuda;
+        std::shared_ptr<unsigned long long> spOutputMaxSize;
+        std::shared_ptr<bool> spGpuMemoryAllocated;
+        // Local variables
+        unsigned char* pOutputImageUCharCuda;
+        unsigned long long mOutputMaxSizeUChar;
     };
 }
 
-#endif // OPENPOSE__CORE__OP_OUTPUT_TO_CV_MAT_HPP
+#endif // OPENPOSE_CORE_OP_OUTPUT_TO_CV_MAT_HPP
