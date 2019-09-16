@@ -325,7 +325,7 @@ namespace op
                 spBodyPartConnectorCaffe->setMinSubsetScore((float)get(PoseProperty::ConnectMinSubsetScore));
                 // Note: BODY_25D will crash (only implemented for CPU version)
                 spBodyPartConnectorCaffe->Forward(
-                    {spHeatMapsBlob.get(), spPeaksBlob.get()}, mPoseKeypoints, mPoseScores);
+                    {spHeatMapsBlob.get(), spPeaksBlob.get()}, mPoseKeypoints, mPoseScores, mAllKeypoints, mAllKeypointConnections);
                 // OP_CUDA_PROFILE_END(timeNormalize4, 1e3, REPS);
                 // log("1(caf)= " + std::to_string(timeNormalize1) + "ms");
                 // log("2(res) = " + std::to_string(timeNormalize2) + " ms");
@@ -462,7 +462,7 @@ namespace op
                             spBodyPartConnectorCaffe->setScaleNetToOutput(scaleRoiToOutput);
                             spBodyPartConnectorCaffe->setInterThreshold(0.01f);
                             spBodyPartConnectorCaffe->Forward(
-                                {spHeatMapsBlob.get(), spPeaksBlob.get()}, poseKeypoints, poseScores);
+                                {spHeatMapsBlob.get(), spPeaksBlob.get()}, poseKeypoints, poseScores, mAllKeypoints, mAllKeypointConnections);
                             // If detected people in new subnet
                             if (!poseKeypoints.empty())
                             {

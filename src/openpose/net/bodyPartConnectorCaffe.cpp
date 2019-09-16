@@ -203,13 +203,14 @@ namespace op
 
     template <typename T>
     void BodyPartConnectorCaffe<T>::Forward(const std::vector<ArrayCpuGpu<T>*>& bottom, Array<T>& poseKeypoints,
-                                            Array<T>& poseScores)
+                                            Array<T>& poseScores, Array<T>& allKeypoints, Array<T>& allKeypointConnections)
     {
         try
         {
             // CUDA
             #ifdef USE_CUDA
-                Forward_gpu(bottom, poseKeypoints, poseScores);
+                // Save allKeypoints by LongChen
+                Forward_gpu(bottom, poseKeypoints, poseScores, allKeypoints, allKeypointConnections);
             // OpenCL
             #elif defined USE_OPENCL
                 Forward_ocl(bottom, poseKeypoints, poseScores);
@@ -330,8 +331,9 @@ namespace op
 
     template <typename T>
     void BodyPartConnectorCaffe<T>::Forward_gpu(
-        const std::vector<ArrayCpuGpu<T>*>& bottom, Array<T>& poseKeypoints, Array<T>& poseScores)
-    {
+        const std::vector<ArrayCpuGpu<T> *> &bottom, Array<T> &poseKeypoints,
+        Array<T> &poseScores, Array<T> &allKeypoints,
+        Array<T> &allKeypointConnections) {
         try
         {
             #if defined USE_CAFFE && defined USE_CUDA
@@ -384,7 +386,7 @@ namespace op
 
                 // Run body part connector
                 connectBodyPartsGpu(
-                    poseKeypoints, poseScores, heatMapsGpuPtr, peaksPtr, mPoseModel,
+                    poseKeypoints, poseScores, allKeypoints, allKeypointConnections, heatMapsGpuPtr, peaksPtr, mPoseModel,
                     Point<int>{heatMapsBlob->shape(3), heatMapsBlob->shape(2)}, maxPeaks, mInterMinAboveThreshold,
                     mInterThreshold, mMinSubsetCnt, mMinSubsetScore, mDefaultNmsThreshold, mScaleNetToOutput,
                     mMaximizePositives, mFinalOutputCpu, pFinalOutputGpuPtr, pBodyPartPairsGpuPtr, pMapIdxGpuPtr,

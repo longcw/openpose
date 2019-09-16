@@ -47,6 +47,8 @@ void printKeypoints(const std::shared_ptr<std::vector<std::shared_ptr<op::Datum>
         {
             // Alternative 1
             op::log("Body keypoints: " + datumsPtr->at(0)->poseKeypoints.toString(), op::Priority::High);
+            op::log("All keypoints: " + datumsPtr->at(0)->allKeypoints.toString(), op::Priority::High);
+            op::log("All keypoint Connections: " + datumsPtr->at(0)->allKeypointConnections.toString(), op::Priority::High);
 
             // // Alternative 2
             // op::log(datumsPtr->at(0).poseKeypoints, op::Priority::High);

@@ -84,6 +84,12 @@ namespace op
                     tDatumPtr->poseKeypoints = spPoseExtractor->getPoseKeypoints().clone();
                     tDatumPtr->poseScores = spPoseExtractor->getPoseScores().clone();
                     tDatumPtr->scaleNetToOutput = spPoseExtractor->getScaleNetToOutput();
+
+                    tDatumPtr->allKeypoints =
+                        spPoseExtractor->getAllKeypoints().clone();
+                    tDatumPtr->allKeypointConnections =
+                        spPoseExtractor->getAllKeypointConnections().clone();
+
                     // Keep desired top N people
                     spPoseExtractor->keepTopPeople(tDatumPtr->poseKeypoints, tDatumPtr->poseScores);
                     // ID extractor (experimental)

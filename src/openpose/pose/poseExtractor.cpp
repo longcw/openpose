@@ -106,6 +106,24 @@ namespace op
         }
     }
 
+    Array<float> PoseExtractor::getAllKeypoints() const {
+      try {
+        return spPoseExtractorNet->getAllKeypoints();
+      } catch (const std::exception &e) {
+        error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+        return Array<float>{};
+      }
+    }
+
+    Array<float> PoseExtractor::getAllKeypointConnections() const {
+      try {
+        return spPoseExtractorNet->getAllKeypointConnections();
+      } catch (const std::exception &e) {
+        error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+        return Array<float>{};
+      }
+    }
+
     float PoseExtractor::getScaleNetToOutput() const
     {
         try

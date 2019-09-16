@@ -39,6 +39,9 @@ namespace op
 
         Array<float> getPoseScores() const;
 
+        Array<float> getAllKeypoints() const;
+        Array<float> getAllKeypointConnections() const;
+
         float getScaleNetToOutput() const;
 
         // KeepTopNPeople functions

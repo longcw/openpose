@@ -16,7 +16,8 @@ namespace op
     // Windows: Cuda functions do not include OP_API
     template <typename T>
     void connectBodyPartsGpu(
-        Array<T>& poseKeypoints, Array<T>& poseScores, const T* const heatMapGpuPtr, const T* const peaksPtr,
+        Array<T>& poseKeypoints, Array<T>& poseScores, Array<T> &allKeypoints,
+        Array<T> &allKeypointConnections, const T* const heatMapGpuPtr, const T* const peaksPtr,
         const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks, const T interMinAboveThreshold,
         const T interThreshold, const int minSubsetCnt, const T minSubsetScore, const T defaultNmsThreshold,
         const T scaleFactor, const bool maximizePositives, Array<T> pairScoresCpu, T* pairScoresGpuPtr,
@@ -59,6 +60,15 @@ namespace op
     std::vector<std::tuple<T, T, int, int, int>> pafPtrIntoVector(
         const Array<T>& pairScores, const T* const peaksPtr, const int maxPeaks,
         const std::vector<unsigned int>& bodyPartPairs, const unsigned int numberBodyPartPairs);
+
+    template <typename T>
+    void getAllKeypointsAndPaf(
+        Array<T> &allKeypoints, Array<T> &allKeypointConnections,
+        const T scaleFactor,
+        const std::vector<std::tuple<T, T, int, int, int>> &pairConnections,
+        const T *const peaksPtr, const int maxPeaks,
+        const std::vector<unsigned int> &bodyPartPairs,
+        const unsigned int numberBodyPartPairs);
 
     template <typename T>
     std::vector<std::pair<std::vector<int>, T>> pafVectorIntoPeopleVector(

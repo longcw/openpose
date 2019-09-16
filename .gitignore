@@ -1,3 +1,5 @@
+cmake-build*
+
 ######################### Binary Files #########################
 # Compiled Object files
 *.slo

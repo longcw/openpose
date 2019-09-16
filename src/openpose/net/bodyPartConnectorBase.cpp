@@ -542,6 +542,82 @@ namespace op
     }
 
     template <typename T>
+    void getAllKeypointsAndPaf(
+        Array<T> &allKeypoints, Array<T> &allKeypointConnections,
+        const T scaleFactor,
+        const std::vector<std::tuple<T, T, int, int, int>> &pairConnections,
+        const T *const peaksPtr, const int maxPeaks,
+        const std::vector<unsigned int> &bodyPartPairs,
+        const unsigned int numberBodyPartPairs) {
+      try {
+        const auto peaksOffset = 3 * (maxPeaks + 1);
+        // Count all keypoints
+        int total_num_keypoints = 0;
+        for (auto partIndex = 0u; partIndex < numberBodyPartPairs;
+             ++partIndex) {
+          const auto *partPtr = peaksPtr + partIndex * peaksOffset;
+          const auto num_peaks = positiveIntRound(partPtr[0]);
+          total_num_keypoints += num_peaks;
+        }
+
+        if (total_num_keypoints > 0) {
+          // x, y, score, type
+          allKeypoints.reset({total_num_keypoints, 4}, 0.f);
+        } else {
+          allKeypoints.reset();
+        }
+
+        // Save all keypoints
+        std::map<std::pair<unsigned int, unsigned int>, unsigned int>
+            local2globalIndex;
+        unsigned int globalKeypointIndex = 0u;
+        for (auto partIndex = 0u; partIndex < numberBodyPartPairs;
+             ++partIndex) {
+          const auto *partPtr = peaksPtr + partIndex * peaksOffset;
+          const auto num_peaks = positiveIntRound(partPtr[0]);
+          for (auto peakIndex = 1u; peakIndex <= num_peaks; ++peakIndex) {
+            allKeypoints[globalKeypointIndex * 4 + 0] =
+                partPtr[peakIndex * 3 + 0] * scaleFactor;
+            allKeypoints[globalKeypointIndex * 4 + 1] =
+                partPtr[peakIndex * 3 + 1] * scaleFactor;
+            allKeypoints[globalKeypointIndex * 4 + 2] =
+                partPtr[peakIndex * 3 + 2];
+            allKeypoints[globalKeypointIndex * 4 + 3] = partIndex;
+            local2globalIndex[{partIndex, peakIndex}] = globalKeypointIndex;
+            ++globalKeypointIndex;
+          }
+        }
+
+        // Save all connections
+        if (!pairConnections.empty()) {
+          allKeypointConnections.reset({pairConnections.size(), 3}, 0.f);
+        } else {
+          allKeypointConnections.reset();
+        }
+        unsigned int connectionIndex = 0u;
+        for (const auto &pairConnection : pairConnections) {
+          // const auto totalScore = std::get<0>(pairConnection);
+          const auto pafScore = std::get<1>(pairConnection);
+          const auto pairIndex = std::get<2>(pairConnection);
+          const auto indexA = std::get<3>(pairConnection);
+          const auto indexB = std::get<4>(pairConnection);
+
+          const auto bodyPartA = bodyPartPairs[2 * pairIndex];
+          const auto bodyPartB = bodyPartPairs[2 * pairIndex + 1];
+          const auto globalIndexA = local2globalIndex.at({bodyPartA, indexA});
+          const auto globalIndexB = local2globalIndex.at({bodyPartB, indexB});
+
+          allKeypointConnections[connectionIndex * 3 + 0] = globalIndexA;
+          allKeypointConnections[connectionIndex * 3 + 1] = globalIndexB;
+          allKeypointConnections[connectionIndex * 3 + 2] = pafScore;
+          ++connectionIndex;
+        }
+      } catch (const std::exception &e) {
+        error(e.what(), __LINE__, __FUNCTION__, __FILE__);
+      }
+    }
+
+    template <typename T>
     std::vector<std::pair<std::vector<int>, T>> pafVectorIntoPeopleVector(
         const std::vector<std::tuple<T, T, int, int, int>>& pairConnections, const T* const peaksPtr,
         const int maxPeaks, const std::vector<unsigned int>& bodyPartPairs, const unsigned int numberBodyParts)
@@ -1443,4 +1519,22 @@ namespace op
         const std::vector<std::tuple<double, double, int, int, int>>& pairConnections,
         const double* const peaksPtr, const int maxPeaks, const std::vector<unsigned int>& bodyPartPairs,
         const unsigned int numberBodyParts);
-}
+
+    template OP_API void getAllKeypointsAndPaf(
+        Array<double> &allKeypoints, Array<double> &allKeypointConnections,
+        const double scaleFactor,
+        const std::vector<std::tuple<double, double, int, int, int>>
+            &pairConnections,
+        const double *const peaksPtr, const int maxPeaks,
+        const std::vector<unsigned int> &bodyPartPairs,
+        const unsigned int numberBodyPartPairs);
+
+    template OP_API void getAllKeypointsAndPaf(
+        Array<float> &allKeypoints, Array<float> &allKeypointConnections,
+        const float scaleFactor,
+        const std::vector<std::tuple<float, float, int, int, int>>
+            &pairConnections,
+        const float *const peaksPtr, const int maxPeaks,
+        const std::vector<unsigned int> &bodyPartPairs,
+        const unsigned int numberBodyPartPairs);
+    }

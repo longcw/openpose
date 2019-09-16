@@ -45,6 +45,10 @@ namespace op
 
         Array<float> getPoseScores() const;
 
+        Array<float> getAllKeypoints() const;
+
+        Array<float> getAllKeypointConnections() const;
+
         float getScaleNetToOutput() const;
 
         double get(const PoseProperty property) const;
@@ -60,6 +64,10 @@ namespace op
         Point<int> mNetOutputSize;
         Array<float> mPoseKeypoints;
         Array<float> mPoseScores;
+
+        Array<float> mAllKeypoints;
+        Array<float> mAllKeypointConnections;
+
         float mScaleNetToOutput;
 
         void checkThread() const;

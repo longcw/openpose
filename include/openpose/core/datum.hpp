@@ -102,6 +102,9 @@ namespace op
          */
         Array<float> poseScores;
 
+        Array<float> allKeypoints;
+        Array<float> allKeypointConnections;
+
         /**
          * Body pose heatmaps (body parts, background and/or PAFs) for the whole image.
          * This parameter is by default empty and disabled for performance. Each group (body parts, background and

@@ -146,8 +146,9 @@ namespace op
 
     template <typename T>
     void connectBodyPartsGpu(
-        Array<T>& poseKeypoints, Array<T>& poseScores, const T* const heatMapGpuPtr, const T* const peaksPtr,
-        const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks, const T interMinAboveThreshold,
+        Array<T> &poseKeypoints, Array<T> &poseScores, Array<T> &allKeypoints,
+        Array<T> &allKeypointConnections, const T *const heatMapGpuPtr,
+        const T *const peaksPtr, const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks, const T interMinAboveThreshold,
         const T interThreshold, const int minSubsetCnt, const T minSubsetScore, const T defaultNmsThreshold,
         const T scaleFactor, const bool maximizePositives, Array<T> pairScoresCpu, T* pairScoresGpuPtr,
         const unsigned int* const bodyPartPairsGpuPtr, const unsigned int* const mapIdxGpuPtr,
@@ -210,6 +211,11 @@ namespace op
             // Get pair connections and their scores
             const auto pairConnections = pafPtrIntoVector(
                 pairScoresCpu, peaksPtr, maxPeaks, bodyPartPairs, numberBodyPartPairs);
+
+            getAllKeypointsAndPaf(allKeypoints, allKeypointConnections,
+                                  scaleFactor, pairConnections, peaksPtr,
+                                  maxPeaks, bodyPartPairs, numberBodyPartPairs);
+
             auto peopleVector = pafVectorIntoPeopleVector(
                 pairConnections, peaksPtr, maxPeaks, bodyPartPairs, numberBodyParts);
             // // Old code: Get pair connections and their scores
@@ -250,16 +256,18 @@ namespace op
     }
 
     template void connectBodyPartsGpu(
-        Array<float>& poseKeypoints, Array<float>& poseScores, const float* const heatMapGpuPtr,
-        const float* const peaksPtr, const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks,
+        Array<float> &poseKeypoints, Array<float> &poseScores,
+        Array<float> &allKeypoints, Array<float> &allKeypointConnections,
+        const float *const heatMapGpuPtr, const float* const peaksPtr, const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks,
         const float interMinAboveThreshold, const float interThreshold, const int minSubsetCnt,
         const float minSubsetScore, const float scaleFactor, const float defaultNmsThreshold,
         const bool maximizePositives, Array<float> pairScoresCpu, float* pairScoresGpuPtr,
         const unsigned int* const bodyPartPairsGpuPtr, const unsigned int* const mapIdxGpuPtr,
         const float* const peaksGpuPtr);
     template void connectBodyPartsGpu(
-        Array<double>& poseKeypoints, Array<double>& poseScores, const double* const heatMapGpuPtr,
-        const double* const peaksPtr, const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks,
+        Array<double> &poseKeypoints, Array<double> &poseScores,
+        Array<double> &allKeypoints, Array<double> &allKeypointConnections,
+        const double *const heatMapGpuPtr, const double* const peaksPtr, const PoseModel poseModel, const Point<int>& heatMapSize, const int maxPeaks,
         const double interMinAboveThreshold, const double interThreshold, const int minSubsetCnt,
         const double minSubsetScore, const double scaleFactor, const double defaultNmsThreshold,
         const bool maximizePositives, Array<double> pairScoresCpu, double* pairScoresGpuPtr,

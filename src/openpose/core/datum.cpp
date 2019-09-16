@@ -28,6 +28,8 @@ namespace op
         poseKeypoints{datum.poseKeypoints},
         poseIds{datum.poseIds},
         poseScores{datum.poseScores},
+        allKeypoints{datum.allKeypoints},
+        allKeypointConnections{datum.allKeypointConnections},
         poseHeatMaps{datum.poseHeatMaps},
         poseCandidates{datum.poseCandidates},
         faceRectangles{datum.faceRectangles},
@@ -95,6 +97,8 @@ namespace op
             poseKeypoints = datum.poseKeypoints;
             poseIds = datum.poseIds,
             poseScores = datum.poseScores,
+            allKeypoints = datum.allKeypoints,
+            allKeypointConnections = datum.allKeypointConnections,
             poseHeatMaps = datum.poseHeatMaps,
             poseCandidates = datum.poseCandidates,
             faceRectangles = datum.faceRectangles,
@@ -171,6 +175,8 @@ namespace op
             std::swap(poseKeypoints, datum.poseKeypoints);
             std::swap(poseIds, datum.poseIds);
             std::swap(poseScores, datum.poseScores);
+            std::swap(allKeypoints, datum.allKeypoints);
+            std::swap(allKeypointConnections, datum.allKeypointConnections);
             std::swap(poseHeatMaps, datum.poseHeatMaps);
             std::swap(poseCandidates, datum.poseCandidates);
             std::swap(faceRectangles, datum.faceRectangles);
@@ -238,6 +244,8 @@ namespace op
             std::swap(poseKeypoints, datum.poseKeypoints);
             std::swap(poseIds, datum.poseIds);
             std::swap(poseScores, datum.poseScores);
+            std::swap(allKeypoints, datum.allKeypoints);
+            std::swap(allKeypointConnections, datum.allKeypointConnections);
             std::swap(poseHeatMaps, datum.poseHeatMaps);
             std::swap(poseCandidates, datum.poseCandidates);
             std::swap(faceRectangles, datum.faceRectangles);
@@ -315,6 +323,8 @@ namespace op
             datum.poseKeypoints = poseKeypoints.clone();
             datum.poseIds = poseIds.clone();
             datum.poseScores = poseScores.clone();
+            datum.allKeypoints = allKeypoints.clone();
+            datum.allKeypointConnections = allKeypointConnections.clone();
             datum.poseHeatMaps = poseHeatMaps.clone();
             datum.poseCandidates = poseCandidates;
             datum.faceRectangles = faceRectangles;

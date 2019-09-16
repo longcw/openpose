@@ -38,13 +38,13 @@ namespace op
         void setScaleNetToOutput(const T scaleNetToOutput);
 
         virtual void Forward(const std::vector<ArrayCpuGpu<T>*>& bottom, Array<T>& poseKeypoints,
-                             Array<T>& poseScores);
+                             Array<T>& poseScores, Array<T>& allKeypoints, Array<T>& allKeypointConnections);
 
         virtual void Forward_cpu(const std::vector<ArrayCpuGpu<T>*>& bottom, Array<T>& poseKeypoints,
                                  Array<T>& poseScores);
 
         virtual void Forward_gpu(const std::vector<ArrayCpuGpu<T>*>& bottom, Array<T>& poseKeypoints,
-                                 Array<T>& poseScores);
+                                 Array<T>& poseScores, Array<T>& allKeypoints, Array<T>& allKeypointConnections);
 
         virtual void Forward_ocl(const std::vector<ArrayCpuGpu<T>*>& bottom, Array<T>& poseKeypoints,
                                  Array<T>& poseScores);
