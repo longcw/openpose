@@ -102,9 +102,10 @@ namespace op
                 }
             }
             if (!wrapperStructOutput.writeVideo.empty() && producerSharedPtr == nullptr)
-                error("Writting video is only available if the OpenPose producer is used (i.e."
-                      " producerSharedPtr cannot be a nullptr).",
-                      __LINE__, __FUNCTION__, __FILE__);
+                error("Writting video (`--write_video`) is only available if the OpenPose producer is used (i.e."
+                      " producerSharedPtr cannot be a nullptr). Otherwise, OpenPose would not know the frame rate"
+                      " of that output video nor whether all the images maintain the same resolution. You might"
+                      " use `--write_images` instead.", __LINE__, __FUNCTION__, __FILE__);
             if (wrapperStructPose.poseMode == PoseMode::Disabled && !wrapperStructFace.enable
                 && !wrapperStructHand.enable)
                 error("Body, face, and hand keypoint detectors are disabled. You must enable at least one (i.e,"
@@ -171,12 +172,10 @@ namespace op
             #endif
             #ifndef USE_CUDA
                 log("---------------------------------- WARNING ----------------------------------\n"
-                    "We have introduced an additional boost in accuracy of about 0.5% with respect to the official"
-                    " OpenPose 1.4.0 (using default settings). Currently, this increase is only applicable to CUDA"
-                    " version, but might eventually be ported to CPU and OpenCL versions. Therefore, CPU and OpenCL"
-                    " results might vary. Nevertheless, this accuracy boost is almost insignificant so CPU and"
-                    " OpenCL versions can be safely used, they will simply provide the exact same accuracy than"
-                    " OpenPose 1.4.0."
+                    "We have introduced an additional boost in accuracy in the CUDA version of about 0.2% with"
+                    " respect to the CPU/OpenCL versions. We will not port this to CPU given the considerable slow"
+                    " down in speed it would add to it. Nevertheless, this accuracy boost is almost insignificant so"
+                    " the CPU/OpenCL versions can be safely used."
                     "\n-------------------------------- END WARNING --------------------------------",
                     Priority::High);
             #endif
