@@ -214,7 +214,7 @@ namespace op
 
             getAllKeypointsAndPaf(allKeypoints, allKeypointConnections,
                                   scaleFactor, pairConnections, peaksPtr,
-                                  maxPeaks, bodyPartPairs, numberBodyPartPairs);
+                                  maxPeaks, bodyPartPairs, numberBodyParts);
 
             auto peopleVector = pafVectorIntoPeopleVector(
                 pairConnections, peaksPtr, maxPeaks, bodyPartPairs, numberBodyParts);

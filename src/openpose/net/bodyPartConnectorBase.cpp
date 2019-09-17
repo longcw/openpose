@@ -548,13 +548,12 @@ namespace op
         const std::vector<std::tuple<T, T, int, int, int>> &pairConnections,
         const T *const peaksPtr, const int maxPeaks,
         const std::vector<unsigned int> &bodyPartPairs,
-        const unsigned int numberBodyPartPairs) {
+        const unsigned int numberBodyParts) {
       try {
         const auto peaksOffset = 3 * (maxPeaks + 1);
         // Count all keypoints
         int total_num_keypoints = 0;
-        for (auto partIndex = 0u; partIndex < numberBodyPartPairs;
-             ++partIndex) {
+        for (auto partIndex = 0u; partIndex < numberBodyParts; ++partIndex) {
           const auto *partPtr = peaksPtr + partIndex * peaksOffset;
           const auto num_peaks = positiveIntRound(partPtr[0]);
           total_num_keypoints += num_peaks;
@@ -568,13 +567,12 @@ namespace op
         }
 
         // Save all keypoints
-        std::map<std::pair<unsigned int, unsigned int>, unsigned int>
-            local2globalIndex;
-        unsigned int globalKeypointIndex = 0u;
-        for (auto partIndex = 0u; partIndex < numberBodyPartPairs; ++partIndex) {
+        std::map<std::pair<unsigned int, int>, int> local2globalIndex;
+        int globalKeypointIndex = 0u;
+        for (auto partIndex = 0u; partIndex < numberBodyParts; ++partIndex) {
           const auto *partPtr = peaksPtr + partIndex * peaksOffset;
           const auto num_peaks = positiveIntRound(partPtr[0]);
-          for (auto peakIndex = 1u; peakIndex <= num_peaks; ++peakIndex) {
+          for (auto peakIndex = 1; peakIndex <= num_peaks; ++peakIndex) {
             allKeypoints[globalKeypointIndex * 5 + 0] = partPtr[peakIndex * 3 + 0] * scaleFactor;
             allKeypoints[globalKeypointIndex * 5 + 1] = partPtr[peakIndex * 3 + 1] * scaleFactor;
             allKeypoints[globalKeypointIndex * 5 + 2] = partPtr[peakIndex * 3 + 2];
