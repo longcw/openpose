@@ -313,6 +313,8 @@ PYBIND11_MODULE(pyopenpose, m) {
         .def_readwrite("cvOutputData", &Datum::cvOutputData)
         .def_readwrite("cvOutputData3D", &Datum::cvOutputData3D)
         .def_readwrite("poseKeypoints", &Datum::poseKeypoints)
+        .def_readwrite("allKeypoints", &Datum::allKeypoints)
+        .def_readwrite("allKeypointConnections", &Datum::allKeypointConnections)
         .def_readwrite("poseIds", &Datum::poseIds)
         .def_readwrite("poseScores", &Datum::poseScores)
         .def_readwrite("poseHeatMaps", &Datum::poseHeatMaps)

@@ -562,7 +562,7 @@ namespace op
 
         if (total_num_keypoints > 0) {
           // x, y, score, type
-          allKeypoints.reset({total_num_keypoints, 4}, 0.f);
+          allKeypoints.reset({total_num_keypoints, 5}, 0.f);
         } else {
           allKeypoints.reset();
         }
@@ -571,18 +571,15 @@ namespace op
         std::map<std::pair<unsigned int, unsigned int>, unsigned int>
             local2globalIndex;
         unsigned int globalKeypointIndex = 0u;
-        for (auto partIndex = 0u; partIndex < numberBodyPartPairs;
-             ++partIndex) {
+        for (auto partIndex = 0u; partIndex < numberBodyPartPairs; ++partIndex) {
           const auto *partPtr = peaksPtr + partIndex * peaksOffset;
           const auto num_peaks = positiveIntRound(partPtr[0]);
           for (auto peakIndex = 1u; peakIndex <= num_peaks; ++peakIndex) {
-            allKeypoints[globalKeypointIndex * 4 + 0] =
-                partPtr[peakIndex * 3 + 0] * scaleFactor;
-            allKeypoints[globalKeypointIndex * 4 + 1] =
-                partPtr[peakIndex * 3 + 1] * scaleFactor;
-            allKeypoints[globalKeypointIndex * 4 + 2] =
-                partPtr[peakIndex * 3 + 2];
-            allKeypoints[globalKeypointIndex * 4 + 3] = partIndex;
+            allKeypoints[globalKeypointIndex * 4 + 0] = partPtr[peakIndex * 3 + 0] * scaleFactor;
+            allKeypoints[globalKeypointIndex * 4 + 1] = partPtr[peakIndex * 3 + 1] * scaleFactor;
+            allKeypoints[globalKeypointIndex * 4 + 2] = partPtr[peakIndex * 3 + 2];
+            allKeypoints[globalKeypointIndex * 4 + 3] = globalKeypointIndex;
+            allKeypoints[globalKeypointIndex * 4 + 4] = partIndex;
             local2globalIndex[{partIndex, peakIndex}] = globalKeypointIndex;
             ++globalKeypointIndex;
           }
