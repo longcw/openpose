@@ -561,7 +561,7 @@ namespace op
         }
 
         if (total_num_keypoints > 0) {
-          // x, y, score, type
+          // x, y, score, index, type
           allKeypoints.reset({total_num_keypoints, 5}, 0.f);
         } else {
           allKeypoints.reset();
@@ -575,11 +575,11 @@ namespace op
           const auto *partPtr = peaksPtr + partIndex * peaksOffset;
           const auto num_peaks = positiveIntRound(partPtr[0]);
           for (auto peakIndex = 1u; peakIndex <= num_peaks; ++peakIndex) {
-            allKeypoints[globalKeypointIndex * 4 + 0] = partPtr[peakIndex * 3 + 0] * scaleFactor;
-            allKeypoints[globalKeypointIndex * 4 + 1] = partPtr[peakIndex * 3 + 1] * scaleFactor;
-            allKeypoints[globalKeypointIndex * 4 + 2] = partPtr[peakIndex * 3 + 2];
-            allKeypoints[globalKeypointIndex * 4 + 3] = globalKeypointIndex;
-            allKeypoints[globalKeypointIndex * 4 + 4] = partIndex;
+            allKeypoints[globalKeypointIndex * 5 + 0] = partPtr[peakIndex * 3 + 0] * scaleFactor;
+            allKeypoints[globalKeypointIndex * 5 + 1] = partPtr[peakIndex * 3 + 1] * scaleFactor;
+            allKeypoints[globalKeypointIndex * 5 + 2] = partPtr[peakIndex * 3 + 2];
+            allKeypoints[globalKeypointIndex * 5 + 3] = globalKeypointIndex;
+            allKeypoints[globalKeypointIndex * 5 + 4] = partIndex;
             local2globalIndex[{partIndex, peakIndex}] = globalKeypointIndex;
             ++globalKeypointIndex;
           }
